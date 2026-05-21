@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#120808">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>UniPiaget Angola — Painel ADMIN · 2ªs Jornadas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Manrope:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --crimson:      #8B1A1A;
+  --crimson-deep: #6B0F0F;
+  --crimson-glow: #B22222;
+  --amber:        #D4751A;
+  --amber-light:  #E8922A;
+  --amber-pale:   #F5C882;
+  --ivory:        #FAF6EF;
+  --ivory-dim:    #EDE6D8;
+  --charcoal:     #1A0E0E;
+  --dark:         #120808;
+  --mid:          #2A1515;
+  --surface:      #1C0E0E;
+  --surface2:     #221212;
+  --muted:        #9A7A6A;
+  --green:        #2E7D52;
+  --green-light:  #4CAF7D;
+  --blue:         #1A4A7A;
+  --blue-light:   #3A7ABD;
+  --border-c:     rgba(139,26,26,0.22);
+  --border-a:     rgba(212,117,26,0.2);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--dark);
+  color: var(--ivory);
+  font-family: 'Manrope', sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ── LOGIN SCREEN ── */
+#login-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  animation: none;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+#login-screen.hidden { display: none; }
+
+.login-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 70% at 50% 40%, rgba(139,26,26,0.18) 0%, transparent 70%);
+}
+.login-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(139,26,26,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139,26,26,0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.login-card {
+  position: relative; z-index: 2;
+  width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border-c);
+  padding: 2.8rem 2.6rem;
+}
+.login-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--crimson), var(--amber));
+}
+
+.login-logo {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 2.2rem;
+}
+.login-emblem {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--crimson);
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid rgba(212,117,26,0.5);
+}
+.login-emblem svg { width: 22px; height: 22px; fill: var(--ivory); }
+.login-title-wrap strong {
+  display: block; font-family: 'Playfair Display', serif;
+  font-size: 1rem; color: var(--ivory);
+}
+.login-title-wrap span {
+  font-family: 'DM Mono', monospace; font-size: .5rem;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--amber);
+}
+
+.login-heading { font-size: 1.4rem; font-weight: 700; margin-bottom: .4rem; }
+.login-sub { font-size: .78rem; color: var(--muted); margin-bottom: 2rem; }
+
+.login-field { margin-bottom: 1.1rem; }
+.login-field label {
+  display: block; font-size: .65rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: .5rem;
+  font-weight: 600;
+}
+.login-field input {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(139,26,26,0.3);
+  color: var(--ivory); padding: .7rem 1rem; font-size: .85rem;
+  font-family: 'Manrope', sans-serif; outline: none;
+  transition: border-color .2s;
+}
+.login-field input:focus { border-color: var(--amber); }
+
+.login-btn {
+  width: 100%; background: var(--crimson); color: var(--ivory);
+  border: none; padding: .85rem; font-size: .75rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  cursor: pointer; transition: background .2s; margin-top: .6rem;
+}
+.login-btn:hover { background: var(--crimson-glow); }
+
+.login-error {
+  background: rgba(178,34,34,0.15); border: 1px solid rgba(178,34,34,0.3);
+  color: #ff8080; padding: .7rem 1rem; font-size: .78rem;
+  margin-bottom: 1rem; display: none;
+}
+.login-error.show { display: block; }
+
+.login-hint {
+  margin-top: 1.2rem; font-size: .68rem; color: rgba(154,122,106,0.6);
+  text-align: center; font-family: 'DM Mono', monospace; letter-spacing: .08em;
+}
+
+/* ── MAIN LAYOUT ── */
+#app { display: none; }
+#app.visible { display: flex; min-height: 100vh; min-height: 100dvh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border-c);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 1.4rem 1.4rem 1.2rem;
+  border-bottom: 1px solid var(--border-c);
+  display: flex; align-items: center; gap: .8rem;
+}
+.sb-emblem {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--crimson); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(212,117,26,0.4);
+}
+.sb-emblem svg { width: 16px; height: 16px; fill: var(--ivory); }
+.sb-title { font-family: 'Playfair Display', serif; font-size: .82rem; font-weight: 700; }
+.sb-sub { font-family: 'DM Mono', monospace; font-size: .45rem; letter-spacing: .18em; text-transform: uppercase; color: var(--amber); }
+
+.sidebar-section { padding: 1rem 0; border-bottom: 1px solid rgba(139,26,26,0.12); }
+.sidebar-section-label {
+  padding: 0 1.4rem .5rem;
+  font-family: 'DM Mono', monospace; font-size: .5rem;
+  letter-spacing: .2em; text-transform: uppercase; color: rgba(154,122,106,0.5);
+}
+.nav-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .6rem 1.4rem; cursor: pointer; transition: all .15s;
+  font-size: .78rem; font-weight: 500; color: var(--muted);
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { color: var(--ivory); background: rgba(139,26,26,0.08); }
+.nav-item.active { color: var(--amber-light); background: rgba(212,117,26,0.08); border-left-color: var(--amber); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .7; }
+.nav-item.active svg { opacity: 1; }
+.nav-badge {
+  margin-left: auto; background: var(--crimson);
+  color: var(--ivory-dim); font-size: .5rem; font-weight: 700;
+  padding: .15rem .45rem; border-radius: 20px; font-family: 'DM Mono', monospace;
+}
+
+.sidebar-footer {
+  margin-top: auto; padding: 1.1rem 1.4rem;
+  border-top: 1px solid var(--border-c);
+}
+.admin-pill {
+  display: flex; align-items: center; gap: .7rem; margin-bottom: .9rem;
+}
+.admin-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--crimson), var(--amber));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; font-weight: 700;
+}
+.admin-name { font-size: .75rem; font-weight: 600; }
+.admin-role { font-size: .6rem; color: var(--amber); font-family: 'DM Mono', monospace; }
+.logout-btn {
+  width: 100%; background: rgba(139,26,26,0.15);
+  border: 1px solid rgba(139,26,26,0.25); color: var(--muted);
+  padding: .5rem; font-size: .65rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: all .2s;
+  font-family: 'Manrope', sans-serif;
+}
+.logout-btn:hover { background: rgba(139,26,26,0.3); color: var(--ivory); }
+
+/* ── MAIN CONTENT ── */
+.main {
+  margin-left: 240px; flex: 1;
+  display: flex; flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.topbar {
+  height: 60px; background: var(--surface);
+  border-bottom: 1px solid var(--border-c);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-size: 1rem; font-weight: 700; }
+.topbar-title span { color: var(--amber); }
+.topbar-actions { display: flex; align-items: center; gap: .8rem; }
+.topbar-btn {
+  background: var(--crimson); color: var(--ivory);
+  border: none; padding: .45rem 1rem; font-size: .65rem;
+  font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; transition: background .2s; font-family: 'Manrope', sans-serif;
+  display: flex; align-items: center; gap: .4rem;
+}
+.topbar-btn:hover { background: var(--crimson-glow); }
+.topbar-btn.outline {
+  background: transparent; border: 1px solid var(--border-a); color: var(--amber-light);
+}
+.topbar-btn.outline:hover { background: rgba(212,117,26,0.1); }
+.topbar-clock {
+  font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted);
+}
+
+.content { padding: 2rem; flex: 1; }
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── STATS GRID ── */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border-c);
+  padding: 1.3rem 1.4rem;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.stat-card.crimson::before { background: linear-gradient(90deg, var(--crimson), transparent); }
+.stat-card.amber::before { background: linear-gradient(90deg, var(--amber), transparent); }
+.stat-card.green::before { background: linear-gradient(90deg, var(--green-light), transparent); }
+.stat-card.blue::before { background: linear-gradient(90deg, var(--blue-light), transparent); }
+.stat-label { font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: .5rem; font-family: 'DM Mono', monospace; }
+.stat-value { font-size: 2.2rem; font-weight: 800; font-family: 'Playfair Display', serif; line-height: 1; }
+.stat-card.crimson .stat-value { color: #E85555; }
+.stat-card.amber .stat-value { color: var(--amber-light); }
+.stat-card.green .stat-value { color: var(--green-light); }
+.stat-card.blue .stat-value { color: var(--blue-light); }
+.stat-sub { font-size: .68rem; color: var(--muted); margin-top: .4rem; }
+.stat-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); opacity: .07; }
+.stat-icon svg { width: 52px; height: 52px; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.section-title {
+  font-family: 'Playfair Display', serif; font-size: 1.2rem;
+}
+.section-title em { color: var(--amber); font-style: italic; }
+.section-actions { display: flex; gap: .6rem; }
+
+/* ── TABLE ── */
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border-c);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;
+}
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: .78rem;
+  table-layout: fixed;
+}
+.data-table th {
+  background: rgba(139,26,26,0.12); color: var(--muted);
+  padding: .8rem 1rem; text-align: left;
+  font-size: .58rem; letter-spacing: .15em; text-transform: uppercase;
+  font-weight: 600; font-family: 'DM Mono', monospace;
+  border-bottom: 1px solid var(--border-c); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.data-table td {
+  padding: .75rem 1rem; border-bottom: 1px solid rgba(139,26,26,0.08);
+  color: var(--ivory-dim); vertical-align: middle;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 0;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(139,26,26,0.06); }
+
+/* Células que precisam de quebra de linha (ex: títulos longos) */
+.data-table td.wrap { white-space: normal; word-break: break-word; }
+
+/* ── LARGURAS DE COLUNA POR TABELA ── */
+
+/* Tabela de Inscrições: #, Nome, Email, Instituição, Categoria, Estado, Data, Ações */
+#inscricoes-table th:nth-child(1), #inscricoes-table td:nth-child(1),
+#recent-table   th:nth-child(1), #recent-table   td:nth-child(1) { width: 3rem; }
+#inscricoes-table th:nth-child(2), #inscricoes-table td:nth-child(2),
+#recent-table   th:nth-child(2), #recent-table   td:nth-child(2) { width: 14%; }
+#inscricoes-table th:nth-child(3), #inscricoes-table td:nth-child(3),
+#recent-table   th:nth-child(3), #recent-table   td:nth-child(3) { width: 18%; }
+#inscricoes-table th:nth-child(4), #inscricoes-table td:nth-child(4),
+#recent-table   th:nth-child(4), #recent-table   td:nth-child(4) { width: 14%; }
+#inscricoes-table th:nth-child(5), #inscricoes-table td:nth-child(5),
+#recent-table   th:nth-child(5), #recent-table   td:nth-child(5) { width: 13%; }
+#inscricoes-table th:nth-child(6), #inscricoes-table td:nth-child(6),
+#recent-table   th:nth-child(6), #recent-table   td:nth-child(6) { width: 9rem; }
+#inscricoes-table th:nth-child(7), #inscricoes-table td:nth-child(7),
+#recent-table   th:nth-child(7), #recent-table   td:nth-child(7) { width: 7rem; }
+#inscricoes-table th:nth-child(8), #inscricoes-table td:nth-child(8) { width: 9rem; }
+
+/* Tabela de Sessões: #, Título, Data, Hora, Sala, Moderador, Área, Estado, Ações */
+#sessoes-table th:nth-child(1), #sessoes-table td:nth-child(1) { width: 3rem; }
+#sessoes-table th:nth-child(2), #sessoes-table td:nth-child(2) { width: 22%; }
+#sessoes-table th:nth-child(3), #sessoes-table td:nth-child(3) { width: 7rem; }
+#sessoes-table th:nth-child(4), #sessoes-table td:nth-child(4) { width: 5rem; }
+#sessoes-table th:nth-child(5), #sessoes-table td:nth-child(5) { width: 14%; }
+#sessoes-table th:nth-child(6), #sessoes-table td:nth-child(6) { width: 15%; }
+#sessoes-table th:nth-child(7), #sessoes-table td:nth-child(7) { width: 16%; }
+#sessoes-table th:nth-child(8), #sessoes-table td:nth-child(8) { width: 8rem; }
+#sessoes-table th:nth-child(9), #sessoes-table td:nth-child(9) { width: 7rem; }
+
+/* Tabela de Comunicações: #, Título, Autor(es), Instituição, Área, Tipo, Estado, Ações */
+#comunicacoes-table th:nth-child(1), #comunicacoes-table td:nth-child(1) { width: 3rem; }
+#comunicacoes-table th:nth-child(2), #comunicacoes-table td:nth-child(2) { width: 26%; }
+#comunicacoes-table th:nth-child(3), #comunicacoes-table td:nth-child(3) { width: 16%; }
+#comunicacoes-table th:nth-child(4), #comunicacoes-table td:nth-child(4) { width: 14%; }
+#comunicacoes-table th:nth-child(5), #comunicacoes-table td:nth-child(5) { width: 12%; }
+#comunicacoes-table th:nth-child(6), #comunicacoes-table td:nth-child(6) { width: 6rem; }
+#comunicacoes-table th:nth-child(7), #comunicacoes-table td:nth-child(7) { width: 8rem; }
+#comunicacoes-table th:nth-child(8), #comunicacoes-table td:nth-child(8) { width: 7rem; }
+
+/* Tabela de Utilizadores: #, Nome, Email, Nível, Estado, Último Acesso, Ações */
+#users-table th:nth-child(1), #users-table td:nth-child(1) { width: 3rem; }
+#users-table th:nth-child(2), #users-table td:nth-child(2) { width: 18%; }
+#users-table th:nth-child(3), #users-table td:nth-child(3) { width: 22%; }
+#users-table th:nth-child(4), #users-table td:nth-child(4) { width: 11rem; }
+#users-table th:nth-child(5), #users-table td:nth-child(5) { width: 7rem; }
+#users-table th:nth-child(6), #users-table td:nth-child(6) { width: 12rem; }
+#users-table th:nth-child(7), #users-table td:nth-child(7) { width: 12rem; }
+
+/* ── OCULTAR COLUNAS POR BREAKPOINT ── */
+
+/* Tablet (≤ 900px): ocultar colunas menos críticas */
+@media (max-width: 900px) {
+  /* Inscrições: ocultar Instituição e Data */
+  #inscricoes-table th:nth-child(4), #inscricoes-table td:nth-child(4),
+  #inscricoes-table th:nth-child(7), #inscricoes-table td:nth-child(7),
+  #recent-table   th:nth-child(4), #recent-table   td:nth-child(4),
+  #recent-table   th:nth-child(7), #recent-table   td:nth-child(7) { display: none; }
+
+  /* Sessões: ocultar Hora e Moderador */
+  #sessoes-table th:nth-child(4), #sessoes-table td:nth-child(4),
+  #sessoes-table th:nth-child(6), #sessoes-table td:nth-child(6) { display: none; }
+
+  /* Comunicações: ocultar Instituição */
+  #comunicacoes-table th:nth-child(4), #comunicacoes-table td:nth-child(4) { display: none; }
+
+  /* Utilizadores: ocultar Último Acesso */
+  #users-table th:nth-child(6), #users-table td:nth-child(6) { display: none; }
+}
+
+/* Mobile (≤ 600px): ocultar ainda mais colunas */
+@media (max-width: 600px) {
+  /* Inscrições: manter só Nome, Categoria, Estado, Ações */
+  #inscricoes-table th:nth-child(1), #inscricoes-table td:nth-child(1),
+  #inscricoes-table th:nth-child(3), #inscricoes-table td:nth-child(3),
+  #recent-table   th:nth-child(1), #recent-table   td:nth-child(1),
+  #recent-table   th:nth-child(3), #recent-table   td:nth-child(3) { display: none; }
+
+  /* Sessões: manter Título, Data, Sala, Estado, Ações */
+  #sessoes-table th:nth-child(1), #sessoes-table td:nth-child(1),
+  #sessoes-table th:nth-child(7), #sessoes-table td:nth-child(7) { display: none; }
+
+  /* Comunicações: manter Título, Autor, Tipo, Estado, Ações */
+  #comunicacoes-table th:nth-child(1), #comunicacoes-table td:nth-child(1),
+  #comunicacoes-table th:nth-child(5), #comunicacoes-table td:nth-child(5) { display: none; }
+
+  /* Utilizadores: manter Nome, Email, Nível, Ações */
+  #users-table th:nth-child(1), #users-table td:nth-child(1),
+  #users-table th:nth-child(5), #users-table td:nth-child(5) { display: none; }
+
+  /* Padding menor */
+  .data-table th { padding: .65rem .7rem; font-size: .5rem; }
+  .data-table td { padding: .65rem .7rem; font-size: .72rem; }
+}
+
+/* Mobile muito pequeno (≤ 375px): reduzir padding ao mínimo */
+@media (max-width: 375px) {
+  .data-table th { padding: .55rem .55rem; font-size: .46rem; }
+  .data-table td { padding: .55rem .55rem; font-size: .68rem; }
+  .action-btn { padding: .25rem .45rem; font-size: .58rem; margin-right: .2rem; }
+}
+
+/* ── BADGES ── */
+.badge {
+  display: inline-block; padding: .2rem .6rem; font-size: .58rem;
+  font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+.badge-green { background: rgba(76,175,125,0.15); color: var(--green-light); border: 1px solid rgba(76,175,125,0.25); }
+.badge-amber { background: rgba(212,117,26,0.15); color: var(--amber-light); border: 1px solid rgba(212,117,26,0.25); }
+.badge-crimson { background: rgba(139,26,26,0.2); color: #E08080; border: 1px solid rgba(139,26,26,0.3); }
+.badge-blue { background: rgba(58,122,189,0.15); color: var(--blue-light); border: 1px solid rgba(58,122,189,0.25); }
+.badge-muted { background: rgba(154,122,106,0.1); color: var(--muted); border: 1px solid rgba(154,122,106,0.2); }
+
+/* ── ACTION BTNS ── */
+.action-btn {
+  background: none; border: 1px solid rgba(139,26,26,0.2);
+  color: var(--muted); padding: .3rem .6rem; font-size: .65rem;
+  cursor: pointer; transition: all .15s; font-family: 'Manrope', sans-serif;
+  margin-right: .3rem;
+}
+.action-btn:hover { border-color: var(--amber); color: var(--amber-light); }
+.action-btn.danger:hover { border-color: var(--crimson-glow); color: #ff7070; }
+
+/* ── SEARCH BAR ── */
+.search-bar {
+  display: flex; align-items: center; gap: .8rem; margin-bottom: 1.2rem; flex-wrap: wrap;
+}
+.search-input {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(139,26,26,0.25);
+  color: var(--ivory); padding: .55rem 1rem; font-size: .8rem; outline: none;
+  font-family: 'Manrope', sans-serif; width: 260px;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--amber); }
+.search-input::placeholder { color: rgba(154,122,106,0.5); }
+.filter-select {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(139,26,26,0.25);
+  color: var(--ivory-dim); padding: .55rem .9rem; font-size: .78rem; outline: none;
+  font-family: 'Manrope', sans-serif; cursor: pointer;
+}
+.filter-select option { background: var(--surface); }
+
+/* ── CHARTS ── */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+.chart-card { background: var(--surface); border: 1px solid var(--border-c); padding: 1.4rem; }
+.chart-title { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 1.2rem; font-weight: 600; }
+.bar-chart { display: flex; flex-direction: column; gap: .7rem; }
+.bar-row { display: flex; align-items: center; gap: .8rem; font-size: .72rem; }
+.bar-label { width: 140px; flex-shrink: 0; color: var(--ivory-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.06); position: relative; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, var(--crimson), var(--amber)); transition: width 1s ease; }
+.bar-count { width: 30px; text-align: right; color: var(--amber-light); font-family: 'DM Mono', monospace; font-size: .68rem; }
+
+.donut-wrap { display: flex; align-items: center; gap: 1.4rem; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { display: flex; flex-direction: column; gap: .5rem; }
+.legend-item { display: flex; align-items: center; gap: .5rem; font-size: .72rem; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-name { color: var(--ivory-dim); }
+.legend-pct { color: var(--muted); font-family: 'DM Mono', monospace; font-size: .65rem; margin-left: auto; }
+
+/* ── SECURITY PAGE ── */
+.security-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+.sec-card { background: var(--surface); border: 1px solid var(--border-c); padding: 1.4rem; }
+.sec-card-title { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+.sec-card-title svg { width: 13px; height: 13px; }
+.log-row {
+  display: flex; align-items: flex-start; gap: .8rem;
+  padding: .6rem 0; border-bottom: 1px solid rgba(139,26,26,0.08);
+  font-size: .73rem;
+}
+.log-row:last-child { border-bottom: none; }
+.log-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: .3rem; flex-shrink: 0; }
+.log-dot.ok { background: var(--green-light); }
+.log-dot.warn { background: var(--amber); }
+.log-dot.fail { background: #E85555; }
+.log-info { flex: 1; }
+.log-action { color: var(--ivory-dim); font-weight: 500; }
+.log-detail { color: var(--muted); font-size: .67rem; margin-top: .15rem; }
+.log-time { font-family: 'DM Mono', monospace; font-size: .6rem; color: rgba(154,122,106,0.5); white-space: nowrap; }
+
+.policy-list { display: flex; flex-direction: column; gap: .7rem; }
+.policy-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .7rem .9rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(139,26,26,0.1);
+}
+.policy-name { font-size: .78rem; font-weight: 500; }
+.policy-desc { font-size: .66rem; color: var(--muted); margin-top: .15rem; }
+.toggle-wrap { display: flex; align-items: center; gap: .5rem; }
+.toggle {
+  width: 36px; height: 20px; background: rgba(139,26,26,0.3); border-radius: 20px;
+  position: relative; cursor: pointer; transition: background .2s; border: none;
+}
+.toggle::after {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  background: var(--muted); border-radius: 50%; top: 3px; left: 3px; transition: all .2s;
+}
+.toggle.on { background: var(--green-light); }
+.toggle.on::after { transform: translateX(16px); background: white; }
+.toggle-label { font-size: .6rem; font-family: 'DM Mono', monospace; color: var(--muted); }
+.toggle.on + .toggle-label { color: var(--green-light); }
+
+/* ── REPORT PAGE ── */
+.report-builder {
+  display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem;
+}
+.report-sidebar { background: var(--surface); border: 1px solid var(--border-c); padding: 1.4rem; }
+.report-sidebar h3 { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 1.1rem; font-weight: 600; }
+.report-option {
+  display: flex; align-items: center; gap: .7rem;
+  padding: .55rem 0; font-size: .78rem; cursor: pointer; color: var(--ivory-dim);
+}
+.report-option input[type="checkbox"] { display: none; }
+.report-checkbox {
+  width: 16px; height: 16px; border: 1px solid rgba(139,26,26,0.4);
+  flex-shrink: 0; position: relative; transition: all .15s;
+}
+.report-option input:checked + .report-checkbox {
+  background: var(--crimson); border-color: var(--crimson);
+}
+.report-option input:checked + .report-checkbox::after {
+  content: '✓'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .55rem; color: white; font-weight: 700;
+}
+.report-period { margin: 1rem 0; }
+.report-period label { display: block; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .4rem; font-weight: 600; }
+.report-period select, .report-period input {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(139,26,26,0.25);
+  color: var(--ivory); padding: .5rem .8rem; font-size: .78rem; outline: none;
+  font-family: 'Manrope', sans-serif;
+}
+.generate-btn {
+  width: 100%; background: var(--crimson); color: var(--ivory);
+  border: none; padding: .8rem; font-size: .68rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  transition: background .2s; font-family: 'Manrope', sans-serif; margin-top: 1.2rem;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.generate-btn:hover { background: var(--crimson-glow); }
+
+.report-preview { background: var(--surface); border: 1px solid var(--border-c); padding: 1.8rem; min-height: 500px; }
+.preview-placeholder {
+  height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .8rem; opacity: .3;
+}
+.preview-placeholder svg { width: 48px; height: 48px; fill: var(--muted); }
+.preview-placeholder p { font-size: .78rem; color: var(--muted); }
+
+#report-content { display: none; }
+#report-content.show { display: block; }
+
+.report-document { font-size: .8rem; line-height: 1.6; }
+.report-doc-header { text-align: center; border-bottom: 2px solid var(--crimson); padding-bottom: 1.2rem; margin-bottom: 1.5rem; }
+.report-doc-header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--ivory); }
+.report-doc-header p { color: var(--muted); font-size: .75rem; margin-top: .3rem; }
+.report-section { margin-bottom: 1.5rem; }
+.report-section h2 { font-size: .85rem; color: var(--amber-pale); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .8rem; border-left: 3px solid var(--amber); padding-left: .7rem; }
+.report-kpi-row { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.report-kpi {
+  background: rgba(139,26,26,0.12); border: 1px solid var(--border-c);
+  padding: .6rem 1rem; flex: 1; min-width: 100px;
+}
+.report-kpi-label { font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
+.report-kpi-value { font-size: 1.3rem; font-weight: 800; color: var(--amber-light); font-family: 'Playfair Display', serif; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border-c);
+  width: 480px; max-height: 80vh; overflow-y: auto;
+}
+.modal-box::before {
+  content: ''; display: block; height: 3px;
+  background: linear-gradient(90deg, var(--crimson), var(--amber));
+}
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-c);
+}
+.modal-head h3 { font-size: .9rem; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; }
+.modal-body { padding: 1.5rem; }
+.modal-field { margin-bottom: 1rem; }
+.modal-field label { display: block; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .4rem; font-weight: 600; }
+.modal-field input, .modal-field select, .modal-field textarea {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(139,26,26,0.3);
+  color: var(--ivory); padding: .6rem .9rem; font-size: .8rem; outline: none;
+  font-family: 'Manrope', sans-serif; transition: border-color .2s;
+}
+.modal-field input:focus, .modal-field select:focus { border-color: var(--amber); }
+.modal-field textarea { resize: vertical; min-height: 80px; }
+.modal-field select option { background: var(--surface); }
+.modal-foot { padding: 1rem 1.5rem; border-top: 1px solid var(--border-c); display: flex; gap: .7rem; justify-content: flex-end; }
+.modal-btn {
+  background: var(--crimson); color: var(--ivory);
+  border: none; padding: .55rem 1.3rem; font-size: .68rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: background .2s;
+  font-family: 'Manrope', sans-serif;
+}
+.modal-btn:hover { background: var(--crimson-glow); }
+.modal-btn.cancel { background: rgba(255,255,255,0.06); color: var(--muted); }
+.modal-btn.cancel:hover { background: rgba(255,255,255,0.1); color: var(--ivory); }
+
+/* ── NOTIFICATIONS ── */
+.toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: .6rem; }
+.toast {
+  background: var(--surface2); border: 1px solid var(--border-c);
+  border-left: 3px solid var(--green-light);
+  padding: .8rem 1.2rem; font-size: .78rem; min-width: 260px;
+  animation: slideIn .3s ease;
+}
+.toast.error { border-left-color: var(--crimson-glow); }
+.toast.warn { border-left-color: var(--amber); }
+
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: rgba(139,26,26,0.4); }
+::-webkit-scrollbar-thumb:hover { background: var(--crimson); }
+
+/* ── BURGER BUTTON ── */
+.burger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 38px; height: 38px;
+  background: rgba(139,26,26,0.15);
+  border: 1px solid var(--border-c);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .2s;
+  padding: 0;
+}
+.burger-btn:hover { background: rgba(139,26,26,0.28); }
+.burger-btn span {
+  display: block;
+  width: 18px; height: 1.5px;
+  background: var(--ivory);
+  transition: transform .3s ease, opacity .3s ease, width .3s ease;
+  transform-origin: center;
+}
+.burger-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.burger-btn.open span:nth-child(2) { opacity: 0; width: 0; }
+.burger-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── SIDEBAR OVERLAY (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 99;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.open { display: block; }
+
+/* ════════════════════════════════════════════
+   RESPONSIVIDADE — TODOS OS TAMANHOS DE ECRÃ
+   ════════════════════════════════════════════ */
+
+/* ── Desktops grandes (≥ 1440px) ── */
+@media (min-width: 1440px) {
+  .sidebar { width: 260px; }
+  .main { margin-left: 260px; }
+  .content { padding: 2.4rem 2.8rem; }
+  .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+  .stat-value { font-size: 2.6rem; }
+}
+
+/* ── Desktops médios (1024px–1439px) ── */
+@media (max-width: 1439px) and (min-width: 1025px) {
+  .content { padding: 1.8rem 2rem; }
+}
+
+/* ── Tablets grandes / laptop pequeno (900px–1024px) ── */
+@media (max-width: 1024px) {
+  .content { padding: 1.4rem 1.6rem; }
+  .stats-grid { gap: .9rem; }
+}
+
+/* ── Tablets (768px–900px) ── */
+@media (max-width: 900px) {
+  .charts-row, .security-grid { grid-template-columns: 1fr; }
+  .report-builder { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+  .topbar { padding: 0 1.2rem; }
+  .section-title { font-size: 1.05rem; }
+}
+
+/* ── Tablets portrait / phablets (700px–768px) ── */
+@media (max-width: 768px) {
+  .modal-box { width: min(520px, calc(100vw - 2rem)); }
+  .data-table { font-size: .74rem; }
+  .data-table th, .data-table td { padding: .65rem .75rem; }
+}
+
+/* ── Mobile landscape / tablets pequenos (601px–700px) ── */
+@media (max-width: 768px) {
+  /* Sidebar vira gaveta deslizante */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease;
+    z-index: 200;
+    box-shadow: none;
+    width: 240px;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 40px rgba(0,0,0,0.7);
+  }
+
+  /* Conteúdo principal ocupa largura total */
+  .main { margin-left: 0; }
+
+  /* Botão burger visível */
+  .burger-btn { display: flex; }
+
+  /* Topbar */
+  .topbar { padding: 0 1rem; gap: .6rem; height: 56px; }
+  .topbar-title { font-size: .85rem; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar-clock { display: none; }
+  .topbar-actions { gap: .4rem; }
+  .topbar-btn { padding: .4rem .7rem; font-size: .6rem; }
+  .topbar-btn.outline { display: none; }
+
+  /* Conteúdo */
+  .content { padding: 1rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .7rem; margin-bottom: 1.4rem; }
+  .stat-value { font-size: 1.75rem; }
+  .stat-card { padding: 1rem 1.1rem; }
+  .stat-label { font-size: .54rem; }
+
+  /* Tabelas com scroll horizontal apenas se necessário */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 0; }
+
+  /* Barra de pesquisa */
+  .search-bar { flex-direction: column; align-items: stretch; gap: .55rem; }
+  .search-input { width: 100%; }
+  .filter-select { width: 100%; }
+
+  /* Cabeçalho de secção */
+  .section-header { flex-direction: column; align-items: flex-start; gap: .6rem; }
+  .section-title { font-size: 1rem; }
+
+  /* Gráficos */
+  .bar-label { width: 100px; font-size: .67rem; }
+  .charts-row, .security-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .chart-card { padding: 1.1rem; }
+
+  /* Modal */
+  .modal-box {
+    width: calc(100vw - 1.6rem);
+    max-height: 88vh;
+    margin: auto;
+  }
+  .modal-body { padding: 1.2rem; }
+  .modal-head { padding: 1rem 1.2rem; }
+  .modal-foot { padding: .9rem 1.2rem; }
+
+  /* Grids dentro do modal (2 cols → 1 col) */
+  .modal-body [style*="grid-template-columns:1fr 1fr"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Construtor de relatórios */
+  .report-builder { grid-template-columns: 1fr; gap: 1rem; }
+  .report-preview { min-height: 300px; padding: 1.2rem; }
+
+  /* Card de login */
+  .login-card { width: calc(100vw - 2rem); max-width: 400px; padding: 2rem 1.4rem; }
+}
+
+/* ── Mobile portrait padrão (481px–600px) ── */
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .65rem; }
+  .stat-value { font-size: 1.65rem; }
+  .topbar-title span { display: none; }
+
+  /* Donut chart: empilhar verticalmente */
+  .donut-wrap { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .donut-svg { align-self: center; }
+  .donut-legend { flex-direction: row; flex-wrap: wrap; gap: .5rem .9rem; }
+
+  /* Acções da secção em linha */
+  .section-actions { width: 100%; }
+  .section-actions button { width: 100%; justify-content: center; }
+
+  /* Botões de acção na tabela: texto oculto em ecrãs muito pequenos */
+  .action-btn { padding: .3rem .5rem; font-size: .6rem; }
+}
+
+/* ── Mobile pequeno (≤ 480px) ── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .55rem; }
+  .stat-value { font-size: 1.5rem; }
+  .stat-card { padding: .85rem .9rem; }
+  .stat-sub { font-size: .62rem; }
+
+  /* Esconder texto dos botões da topbar, manter só ícones */
+  .topbar-btn span { display: none; }
+  .topbar-btn svg { display: block; }
+  .topbar-btn { padding: .45rem .6rem; }
+
+  .content { padding: .85rem; }
+
+  .report-kpi-row { flex-direction: column; }
+  .report-kpi { min-width: unset; }
+
+  /* Login card em telas muito pequenas */
+  .login-card { padding: 1.6rem 1.1rem; }
+  .login-heading { font-size: 1.2rem; }
+  .login-btn { padding: .75rem; font-size: .7rem; }
+
+  /* Sidebar ligeiramente mais estreita para caber bem */
+  .sidebar { width: 220px; }
+  .nav-item { padding: .55rem 1.1rem; font-size: .74rem; }
+  .sidebar-brand { padding: 1.1rem 1.1rem 1rem; }
+}
+
+/* ── Mobile muito pequeno (≤ 375px — ex: iPhone SE) ── */
+@media (max-width: 375px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .stat-value { font-size: 1.35rem; }
+  .stat-card { padding: .75rem .85rem; }
+  .stat-label { font-size: .5rem; letter-spacing: .1em; }
+
+  .content { padding: .7rem; }
+  .topbar { padding: 0 .75rem; }
+  .topbar-title { font-size: .78rem; }
+
+  .section-title { font-size: .9rem; }
+  .badge { padding: .15rem .45rem; font-size: .52rem; }
+
+  .login-card { padding: 1.4rem 1rem; }
+  .login-heading { font-size: 1.1rem; }
+  .login-sub { font-size: .72rem; }
+
+  .sidebar { width: 200px; }
+  .sb-title { font-size: .75rem; }
+
+  /* Toast menor */
+  .toast { min-width: calc(100vw - 2rem); font-size: .72rem; padding: .65rem .9rem; }
+  .toast-container { right: 1rem; left: 1rem; bottom: 1rem; }
+
+  /* Modal full-width */
+  .modal-box { width: 100vw; border-left: none; border-right: none; border-radius: 0; }
+}
+
+/* ── Ecrãs ultra-largos / TVs (≥ 1920px) ── */
+@media (min-width: 1920px) {
+  .sidebar { width: 280px; }
+  .main { margin-left: 280px; }
+  .content { padding: 2.8rem 3.2rem; max-width: 1600px; }
+  .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 1.4rem; }
+  .stat-value { font-size: 3rem; }
+  .charts-row { gap: 1.6rem; }
+}
+
+/* ── Suporte a preferência por menos movimento ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Orientação landscape em mobile ── */
+@media (max-width: 900px) and (orientation: landscape) {
+  .login-card { padding: 1.4rem 2rem; }
+  .login-field { margin-bottom: .7rem; }
+  .login-sub { display: none; }
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .content { padding: .9rem 1.2rem; }
+  .topbar { height: 50px; }
+  .sidebar { height: 100dvh; overflow-y: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-bg"></div>
+  <div class="login-grid"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-emblem">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="login-title-wrap">
+        <strong>UniPiaget Angola</strong>
+        <span>Sistema Administrativo</span>
+      </div>
+    </div>
+    <h2 class="login-heading">Painel de Controlo</h2>
+    <p class="login-sub">Acesso restrito a administradores credenciados das 2ªs Jornadas Técnico-Científicas.</p>
+    <div class="login-error" id="login-error">Credenciais inválidas. Por favor, tente novamente.</div>
+    <div class="login-field">
+      <label>Utilizador</label>
+      <input type="text" id="login-user" placeholder="admin@unipiaget.ao" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label>Palavra-passe</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar no Sistema</button>
+    <div class="login-hint">demo: admin / admin</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════ -->
+<!-- Sidebar overlay for mobile -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sb-emblem">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="sb-title">UniPiaget</div>
+        <div class="sb-sub">Admin · 2ªs Jornadas</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <div class="nav-item active" onclick="showPage('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('inscricoes', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Inscrições
+        <span class="nav-badge" id="badge-inscricoes">48</span>
+      </div>
+      <div class="nav-item" onclick="showPage('sessoes', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Sessões & Programa
+      </div>
+      <div class="nav-item" onclick="showPage('comunicacoes', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Comunicações
+        <span class="nav-badge" id="badge-com">12</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestão</div>
+      <div class="nav-item" onclick="showPage('relatorios', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Relatórios & PDF
+      </div>
+      <div class="nav-item" onclick="showPage('seguranca', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Segurança
+      </div>
+      <div class="nav-item" onclick="showPage('utilizadores', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+        Utilizadores Admin
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar" id="admin-avatar">A</div>
+        <div>
+          <div class="admin-name" id="admin-name-display">Administrador</div>
+          <div class="admin-role">Super Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">⎋ &nbsp; Terminar Sessão</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="burger-btn" id="burger-btn" onclick="toggleSidebar()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="topbar-title">Dashboard <span>· Visão Geral</span></div>
+      <div class="topbar-actions">
+        <div class="topbar-clock" id="topbar-clock">--:--:--</div>
+        <button class="topbar-btn outline" onclick="showPage('relatorios', document.querySelector('.nav-item:nth-child(1)'))">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+          Exportar PDF
+        </button>
+        <button class="topbar-btn" onclick="openModal('add-inscricao')">+ Nova Inscrição</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card crimson">
+            <div class="stat-label">Total Inscritos</div>
+            <div class="stat-value" id="stat-total">48</div>
+            <div class="stat-sub">↑ 12 esta semana</div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">Comunicações</div>
+            <div class="stat-value">12</div>
+            <div class="stat-sub">7 aprovadas · 5 pendentes</div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Confirmados</div>
+            <div class="stat-value">35</div>
+            <div class="stat-sub">73% taxa de confirmação</div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Online</div>
+            <div class="stat-value">9</div>
+            <div class="stat-sub">Participantes remotos</div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Inscrições por Área Temática</div>
+            <div class="bar-chart" id="chart-areas"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Distribuição por Categoria</div>
+            <div class="donut-wrap">
+              <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110" id="donut-svg"></svg>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2 class="section-title">Inscrições <em>Recentes</em></h2>
+          <div class="section-actions">
+            <button class="topbar-btn outline" onclick="showPage('inscricoes', null)" style="font-size:.62rem;padding:.35rem .8rem;">Ver Todas</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="recent-table"></table>
+        </div>
+      </div>
+
+      <!-- ═══ INSCRIÇÕES ═══ -->
+      <div class="page" id="page-inscricoes">
+        <div class="section-header">
+          <h2 class="section-title">Gestão de <em>Inscrições</em></h2>
+          <div class="section-actions">
+            <button class="topbar-btn" onclick="openModal('add-inscricao')">+ Adicionar</button>
+          </div>
+        </div>
+        <div class="search-bar">
+          <input class="search-input" id="search-inscricoes" placeholder="🔍  Pesquisar por nome, email, instituição…" oninput="filterInscricoes()">
+          <select class="filter-select" id="filter-cat" onchange="filterInscricoes()">
+            <option value="">Todas as categorias</option>
+            <option value="estudante">Estudante UniPiaget</option>
+            <option value="geral">Participante Geral</option>
+            <option value="autor">Comunicador / Autor</option>
+            <option value="online">Participante Online</option>
+          </select>
+          <select class="filter-select" id="filter-status" onchange="filterInscricoes()">
+            <option value="">Todos os estados</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="pendente">Pendente</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="inscricoes-table"></table>
+        </div>
+      </div>
+
+      <!-- ═══ SESSÕES ═══ -->
+      <div class="page" id="page-sessoes">
+        <div class="section-header">
+          <h2 class="section-title">Sessões & <em>Programa</em></h2>
+          <div class="section-actions">
+            <button class="topbar-btn" onclick="openModal('add-sessao')">+ Nova Sessão</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="sessoes-table"></table>
+        </div>
+      </div>
+
+      <!-- ═══ COMUNICAÇÕES ═══ -->
+      <div class="page" id="page-comunicacoes">
+        <div class="section-header">
+          <h2 class="section-title">Comunicações <em>Científicas</em></h2>
+          <div class="section-actions">
+            <button class="topbar-btn" onclick="openModal('add-comunicacao')">+ Submeter</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="comunicacoes-table"></table>
+        </div>
+      </div>
+
+      <!-- ═══ RELATÓRIOS ═══ -->
+      <div class="page" id="page-relatorios">
+        <div class="section-header">
+          <h2 class="section-title">Geração de <em>Relatórios</em></h2>
+        </div>
+        <div class="report-builder">
+          <div class="report-sidebar">
+            <h3>Configurar Relatório</h3>
+            <div style="margin-bottom:1rem;">
+              <label class="report-option"><input type="checkbox" id="rpt-resumo" checked><div class="report-checkbox"></div>Resumo Executivo</label>
+              <label class="report-option"><input type="checkbox" id="rpt-inscricoes" checked><div class="report-checkbox"></div>Listagem de Inscrições</label>
+              <label class="report-option"><input type="checkbox" id="rpt-categorias" checked><div class="report-checkbox"></div>Estatísticas por Categoria</label>
+              <label class="report-option"><input type="checkbox" id="rpt-areas" checked><div class="report-checkbox"></div>Estatísticas por Área</label>
+              <label class="report-option"><input type="checkbox" id="rpt-comunicacoes" checked><div class="report-checkbox"></div>Comunicações Submetidas</label>
+              <label class="report-option"><input type="checkbox" id="rpt-sessoes"><div class="report-checkbox"></div>Programa das Sessões</label>
+              <label class="report-option"><input type="checkbox" id="rpt-seguranca"><div class="report-checkbox"></div>Log de Segurança</label>
+            </div>
+            <div class="report-period">
+              <label>Tipo de Relatório</label>
+              <select id="rpt-tipo">
+                <option value="completo">Completo</option>
+                <option value="executivo">Executivo</option>
+                <option value="tecnico">Técnico</option>
+              </select>
+            </div>
+            <div class="report-period">
+              <label>Data de Corte</label>
+              <input type="date" id="rpt-data" value="2025-08-15">
+            </div>
+            <button class="generate-btn" onclick="generateReport()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              Gerar Pré-visualização
+            </button>
+            <button class="generate-btn" onclick="exportPDF()" style="background:var(--green);margin-top:.5rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+              Exportar PDF
+            </button>
+          </div>
+          <div class="report-preview" id="report-preview-area">
+            <div class="preview-placeholder" id="preview-placeholder">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <p>Configure as opções e clique em "Gerar Pré-visualização"</p>
+            </div>
+            <div id="report-content" class="report-document"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SEGURANÇA ═══ -->
+      <div class="page" id="page-seguranca">
+        <div class="section-header">
+          <h2 class="section-title">Políticas de <em>Segurança</em></h2>
+        </div>
+        <div class="security-grid">
+          <div class="sec-card" style="grid-column: 1 / -1;">
+            <div class="sec-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Políticas Activas
+            </div>
+            <div class="policy-list" id="policy-list"></div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Log de Auditoria
+            </div>
+            <div id="audit-log"></div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Sessões Activas
+            </div>
+            <div id="active-sessions"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ UTILIZADORES ═══ -->
+      <div class="page" id="page-utilizadores">
+        <div class="section-header">
+          <h2 class="section-title">Utilizadores <em>Administrativos</em></h2>
+          <div class="section-actions">
+            <button class="topbar-btn" onclick="openModal('add-user')">+ Novo Admin</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="users-table"></table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <!-- ADD INSCRICAO -->
+  <div class="modal-box" id="modal-add-inscricao" style="display:none;">
+    <div class="modal-head">
+      <h3>Nova Inscrição</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+        <div class="modal-field"><label>Nome</label><input type="text" id="ni-nome" placeholder="Primeiro nome"></div>
+        <div class="modal-field"><label>Apelido</label><input type="text" id="ni-apelido" placeholder="Apelido"></div>
+      </div>
+      <div class="modal-field"><label>E-mail</label><input type="email" id="ni-email" placeholder="email@exemplo.com"></div>
+      <div class="modal-field"><label>Telefone</label><input type="tel" id="ni-tel" placeholder="+244 9xx xxx xxx"></div>
+      <div class="modal-field"><label>Instituição</label><input type="text" id="ni-inst" placeholder="Nome da instituição"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+        <div class="modal-field">
+          <label>Categoria</label>
+          <select id="ni-cat">
+            <option value="estudante">Estudante UniPiaget</option>
+            <option value="geral">Participante Geral</option>
+            <option value="autor">Comunicador / Autor</option>
+            <option value="online">Participante Online</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Estado</label>
+          <select id="ni-status">
+            <option value="confirmado">Confirmado</option>
+            <option value="pendente">Pendente</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-field"><label>Observações</label><textarea id="ni-obs" placeholder="Notas opcionais…"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn" onclick="saveInscricao()">Guardar Inscrição</button>
+    </div>
+  </div>
+
+  <!-- ADD SESSAO -->
+  <div class="modal-box" id="modal-add-sessao" style="display:none;">
+    <div class="modal-head"><h3>Nova Sessão</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="modal-field"><label>Título da Sessão</label><input type="text" id="ns-titulo" placeholder="Ex: Sessão Plenária de Abertura"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+        <div class="modal-field"><label>Data</label><input type="date" id="ns-data" value="2025-08-14"></div>
+        <div class="modal-field"><label>Hora</label><input type="time" id="ns-hora" value="09:00"></div>
+      </div>
+      <div class="modal-field"><label>Sala / Local</label><input type="text" id="ns-sala" placeholder="Ex: Auditório Principal"></div>
+      <div class="modal-field"><label>Moderador</label><input type="text" id="ns-mod" placeholder="Nome do moderador"></div>
+      <div class="modal-field">
+        <label>Área Temática</label>
+        <select id="ns-area">
+          <option>Saúde & Ciências Biomédicas</option>
+          <option>Engenharias & Tecnologias</option>
+          <option>Educação & Pedagogia</option>
+          <option>Direito & Ciências Jurídicas</option>
+          <option>Economia, Gestão & Petróleos</option>
+          <option>Informática, IA & Cibersegurança</option>
+          <option>Sessão Plenária</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn" onclick="saveSessao()">Guardar Sessão</button>
+    </div>
+  </div>
+
+  <!-- ADD COMUNICACAO -->
+  <div class="modal-box" id="modal-add-comunicacao" style="display:none;">
+    <div class="modal-head"><h3>Submeter Comunicação</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="modal-field"><label>Título</label><input type="text" id="nc-titulo" placeholder="Título da comunicação"></div>
+      <div class="modal-field"><label>Autor(es)</label><input type="text" id="nc-autores" placeholder="Nome(s) do(s) autor(es)"></div>
+      <div class="modal-field"><label>Instituição</label><input type="text" id="nc-inst" placeholder="Instituição de afiliação"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+        <div class="modal-field">
+          <label>Área</label>
+          <select id="nc-area">
+            <option>Saúde & Biomédicas</option>
+            <option>Engenharias</option>
+            <option>Educação</option>
+            <option>Direito</option>
+            <option>Economia</option>
+            <option>Informática / IA</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Tipo</label>
+          <select id="nc-tipo">
+            <option value="oral">Comunicação Oral</option>
+            <option value="poster">Poster</option>
+            <option value="workshop">Workshop</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-field"><label>Resumo</label><textarea id="nc-resumo" placeholder="Resumo da comunicação (max. 250 palavras)…"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn" onclick="saveComunicacao()">Submeter</button>
+    </div>
+  </div>
+
+  <!-- ADD USER -->
+  <div class="modal-box" id="modal-add-user" style="display:none;">
+    <div class="modal-head"><h3>Novo Utilizador Admin</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+        <div class="modal-field"><label>Nome</label><input type="text" id="nu-nome" placeholder="Nome"></div>
+        <div class="modal-field"><label>Apelido</label><input type="text" id="nu-apelido" placeholder="Apelido"></div>
+      </div>
+      <div class="modal-field"><label>E-mail</label><input type="email" id="nu-email" placeholder="email@unipiaget.ao"></div>
+      <div class="modal-field"><label>Palavra-passe temporária</label><input type="password" id="nu-pass" placeholder="Min. 8 caracteres"></div>
+      <div class="modal-field">
+        <label>Nível de Acesso</label>
+        <select id="nu-role">
+          <option value="viewer">Visualizador</option>
+          <option value="editor">Editor</option>
+          <option value="admin">Administrador</option>
+          <option value="superadmin">Super Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn" onclick="saveUser()">Criar Conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA STORE
+// ════════════════════════════════════════════
+let state = {
+  loggedIn: false,
+  currentUser: null,
+  inscricoes: [
+    {id:1,nome:'Carlos',apelido:'Rodrigues Teixeira',email:'carlos.teixeira@unipiaget.ao',tel:'+244 923 456 789',inst:'UniPiaget Angola',cat:'estudante',areas:['saude','eng'],status:'confirmado',data:'2025-07-28',obs:''},
+    {id:2,nome:'Ana Beatriz',apelido:'Lopes Santos',email:'ana.santos@saude.gov.ao',tel:'+244 912 345 678',inst:'Min. Saúde Angola',cat:'geral',areas:['saude'],status:'confirmado',data:'2025-07-30',obs:'Alergia a glúten'},
+    {id:3,nome:'João Pedro',apelido:'Ferreira Costa',email:'joao.costa@itel.ao',tel:'+244 934 567 890',inst:'ITEL',cat:'autor',areas:['eng','ia'],status:'confirmado',data:'2025-07-31',obs:''},
+    {id:4,nome:'Maria Filomena',apelido:'Neto Alves',email:'filomena.alves@gmail.com',tel:'+244 945 678 901',inst:'Universidade Agostinho Neto',cat:'geral',areas:['edu'],status:'pendente',data:'2025-08-01',obs:''},
+    {id:5,nome:'António José',apelido:'Mbemba Lukembo',email:'antonio.mbemba@dn.ao',tel:'+244 956 789 012',inst:'Diário de Notícias',cat:'geral',areas:['dir'],status:'confirmado',data:'2025-08-02',obs:''},
+    {id:6,nome:'Sofia',apelido:'Pereira Gomes',email:'sofia.gomes@unipiaget.ao',tel:'+244 967 890 123',inst:'UniPiaget Angola',cat:'estudante',areas:['eco'],status:'confirmado',data:'2025-08-03',obs:'Necessita cadeira de rodas'},
+    {id:7,nome:'Hélder',apelido:'Augusto Carvalho',email:'h.carvalho@sonangol.ao',tel:'+244 978 901 234',inst:'Sonangol',cat:'geral',areas:['eco'],status:'pendente',data:'2025-08-04',obs:''},
+    {id:8,nome:'Lurdes',apelido:'Simões Figueira',email:'lurdes.figueira@gmail.com',tel:'+244 989 012 345',inst:'BNA',cat:'autor',areas:['eco','dir'],status:'confirmado',data:'2025-08-05',obs:''},
+    {id:9,nome:'Mário',apelido:'Fonseca Dias',email:'mario.dias@unipiaget.ao',tel:'+244 900 123 456',inst:'UniPiaget Angola',cat:'estudante',areas:['ia','eng'],status:'confirmado',data:'2025-08-06',obs:''},
+    {id:10,nome:'Catarina',apelido:'Rodrigues Pinto',email:'catarina.pinto@online.ao',tel:'+244 911 234 567',inst:'ISPTEC',cat:'online',areas:['ia'],status:'confirmado',data:'2025-08-07',obs:'Participante remota — Lisboa'},
+    {id:11,nome:'Pedro',apelido:'Nascimento Silva',email:'pedro.silva@unipiaget.ao',tel:'+244 922 345 678',inst:'UniPiaget Angola',cat:'estudante',areas:['saude'],status:'pendente',data:'2025-08-08',obs:''},
+    {id:12,nome:'Beatriz',apelido:'Martins Pinheiro',email:'bmartins@med.ao',tel:'+244 933 456 789',inst:'Hospital Geral de Luanda',cat:'autor',areas:['saude'],status:'confirmado',data:'2025-08-09',obs:''},
+  ],
+  sessoes: [
+    {id:1,titulo:'Sessão Plenária de Abertura',data:'2025-08-14',hora:'09:00',sala:'Auditório Principal',mod:'Prof. Dr. Carlos Melo',area:'Sessão Plenária',status:'confirmado'},
+    {id:2,titulo:'Painel: Inovação em Saúde em Angola',data:'2025-08-14',hora:'11:00',sala:'Sala A — Saúde',mod:'Dra. Ana Santos',area:'Saúde & Ciências Biomédicas',status:'confirmado'},
+    {id:3,titulo:'Engenharia & Sustentabilidade',data:'2025-08-14',hora:'14:00',sala:'Sala B — Engenharia',mod:'Prof. Hélder Costa',area:'Engenharias & Tecnologias',status:'confirmado'},
+    {id:4,titulo:'IA, Dados e Futuro Digital',data:'2025-08-15',hora:'09:30',sala:'Sala C — Informática',mod:'Prof. Mário Fonseca',area:'Informática, IA & Cibersegurança',status:'confirmado'},
+    {id:5,titulo:'Economia Angolana pós-petróleo',data:'2025-08-15',hora:'11:30',sala:'Sala D — Economia',mod:'Dr. Lurdes Figueira',area:'Economia, Gestão & Petróleos',status:'pendente'},
+    {id:6,titulo:'Encerramento e Premiação',data:'2025-08-15',hora:'17:00',sala:'Auditório Principal',mod:'Prof. Dr. Carlos Melo',area:'Sessão Plenária',status:'confirmado'},
+  ],
+  comunicacoes: [
+    {id:1,titulo:'Aplicação de ML no Diagnóstico Precoce de Malária',autores:'Beatriz Martins Pinheiro',inst:'Hospital Geral de Luanda',area:'Saúde & Biomédicas',tipo:'oral',status:'aprovado'},
+    {id:2,titulo:'Cibersegurança nas Infraestruturas Críticas Angolanas',autores:'Mário Fonseca Dias',inst:'UniPiaget Angola',area:'Informática / IA',tipo:'oral',status:'aprovado'},
+    {id:3,titulo:'Impacto do E-Learning no Ensino Superior em Angola',autores:'Maria Filomena Neto Alves',inst:'Univ. Agostinho Neto',area:'Educação',tipo:'poster',status:'pendente'},
+    {id:4,titulo:'Gestão de Risco em Projetos Petrolíferos',autores:'Lurdes Simões Figueira',inst:'BNA',area:'Economia',tipo:'oral',status:'aprovado'},
+    {id:5,titulo:'Energias Renováveis em Angola: Desafios e Oportunidades',autores:'João Pedro Ferreira Costa',inst:'ITEL',area:'Engenharias',tipo:'oral',status:'aprovado'},
+    {id:6,titulo:'Regulação Jurídica das Criptomoedas em África',autores:'António José Mbemba',inst:'Diário de Notícias',area:'Direito',tipo:'workshop',status:'pendente'},
+    {id:7,titulo:'Telemedicina Rural em Contexto Angolano',autores:'Carlos Rodrigues Teixeira',inst:'UniPiaget Angola',area:'Saúde & Biomédicas',tipo:'poster',status:'aprovado'},
+    {id:8,titulo:'Blockchain na Cadeia de Valor do Petróleo',autores:'Hélder Augusto Carvalho',inst:'Sonangol',area:'Economia',tipo:'oral',status:'revisão'},
+  ],
+  adminUsers: [
+    {id:1,nome:'Administrador Geral',email:'admin@unipiaget.ao',role:'superadmin',status:'activo',lastLogin:'Hoje 09:14'},
+    {id:2,nome:'Coordenadora Científica',email:'ciencia@unipiaget.ao',role:'admin',status:'activo',lastLogin:'Hoje 08:30'},
+    {id:3,nome:'Assistente de Secretariado',email:'secretariado@unipiaget.ao',role:'editor',status:'activo',lastLogin:'Ontem 17:45'},
+    {id:4,nome:'Observador Externo',email:'obs@parceiro.ao',role:'viewer',status:'inactivo',lastLogin:'Há 3 dias'},
+  ],
+  policies: [
+    {key:'2fa', name:'Autenticação de Dois Factores (2FA)', desc:'Exige código OTP no login além da palavra-passe', on:true},
+    {key:'session_timeout', name:'Timeout de Sessão (30 min)', desc:'Encerra sessão inactiva após 30 minutos automaticamente', on:true},
+    {key:'ip_whitelist', name:'Whitelist de IPs', desc:'Acesso restrito a IPs aprovados da rede UniPiaget', on:false},
+    {key:'export_log', name:'Log de Exportações', desc:'Regista todas as exportações de dados e PDFs gerados', on:true},
+    {key:'data_encrypt', name:'Encriptação de Dados Sensíveis', desc:'Emails e telefones encriptados em repouso (AES-256)', on:true},
+    {key:'brute_force', name:'Protecção contra Força Bruta', desc:'Bloqueia IP após 5 tentativas falhadas de login', on:true},
+    {key:'gdpr_mode', name:'Conformidade RGPD / Lei de Privacidade', desc:'Aplica regras de consentimento e direito ao esquecimento', on:true},
+    {key:'role_access', name:'Controlo de Acesso por Funções (RBAC)', desc:'Permissões granulares por nível de utilizador', on:true},
+  ],
+  auditLog: [
+    {type:'ok',  action:'Login efectuado', detail:'admin@unipiaget.ao · IP 196.220.x.x', time:'Hoje 09:14'},
+    {type:'ok',  action:'Relatório exportado', detail:'PDF · 48 inscrições · por admin', time:'Hoje 09:01'},
+    {type:'warn',action:'Tentativa de login falhada', detail:'email: unknown@mail.com · IP 41.222.x.x', time:'Hoje 07:55'},
+    {type:'ok',  action:'Nova inscrição adicionada', detail:'Beatriz Martins Pinheiro · por admin', time:'Ontem 16:30'},
+    {type:'ok',  action:'Comunicação aprovada', detail:'ID #2 · Mário Fonseca Dias', time:'Ontem 14:12'},
+    {type:'fail',action:'IP bloqueado (força bruta)', detail:'5 tentativas · IP 187.x.x.x', time:'Ontem 11:44'},
+    {type:'ok',  action:'Política 2FA activada', detail:'por admin@unipiaget.ao', time:'2025-08-10 09:00'},
+    {type:'warn',action:'Exportação de dados CSV', detail:'Solicitada por editor ciencia@unipiaget.ao', time:'2025-08-09 17:20'},
+  ],
+  activeSessions: [
+    {user:'admin@unipiaget.ao', role:'Super Admin', ip:'196.220.x.x', agent:'Chrome 126 · Windows', since:'09:14'},
+    {user:'ciencia@unipiaget.ao', role:'Admin', ip:'196.220.x.x', agent:'Firefox 128 · macOS', since:'08:30'},
+  ],
+  nextId: {inscricoes:13, sessoes:7, comunicacoes:9, users:5}
+};
+
+// ════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════
+const CREDENTIALS = {
+  'admin': {pass:'admin', name:'Administrador Geral', initials:'AG'},
+  'admin@unipiaget.ao': {pass:'admin', name:'Administrador Geral', initials:'AG'},
+};
+
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const cred = CREDENTIALS[user];
+  if (cred && cred.pass === pass) {
+    state.loggedIn = true;
+    state.currentUser = {username: user, name: cred.name, initials: cred.initials};
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('admin-name-display').textContent = cred.name;
+    document.getElementById('admin-avatar').textContent = cred.initials;
+    addAuditLog('ok', 'Login efectuado', `${user} · IP 196.220.x.x`);
+    initApp();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+    document.getElementById('login-pass').value = '';
+  }
+}
+
+function doLogout() {
+  state.loggedIn = false;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').classList.remove('show');
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+function initApp() {
+  renderDashboard();
+  renderInscricoes();
+  renderSessoes();
+  renderComunicacoes();
+  renderUsers();
+  renderSecurity();
+  startClock();
+}
+
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('topbar-clock').textContent =
+      now.toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+const pageTitles = {
+  dashboard: 'Dashboard <span>· Visão Geral</span>',
+  inscricoes: 'Inscrições <span>· Gestão</span>',
+  sessoes: 'Sessões <span>· Programa</span>',
+  comunicacoes: 'Comunicações <span>· Científicas</span>',
+  relatorios: 'Relatórios <span>· Exportar PDF</span>',
+  seguranca: 'Segurança <span>· Políticas</span>',
+  utilizadores: 'Utilizadores <span>· Admin</span>',
+};
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbar-title').innerHTML = pageTitles[page] || page;
+}
+
+// ════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════
+function renderDashboard() {
+  document.getElementById('stat-total').textContent = state.inscricoes.length;
+  document.getElementById('badge-inscricoes').textContent = state.inscricoes.length;
+
+  // Areas chart
+  const areaCounts = {};
+  const areaLabels = {saude:'Saúde', eng:'Engenharias', edu:'Educação', dir:'Direito', eco:'Economia', ia:'Informática/IA'};
+  state.inscricoes.forEach(i => i.areas.forEach(a => areaCounts[a] = (areaCounts[a]||0)+1));
+  const maxA = Math.max(...Object.values(areaCounts));
+  const chartHtml = Object.entries(areaCounts).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
+    <div class="bar-row">
+      <div class="bar-label">${areaLabels[k]||k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/maxA)*100}%"></div></div>
+      <div class="bar-count">${v}</div>
+    </div>
+  `).join('');
+  document.getElementById('chart-areas').innerHTML = chartHtml;
+
+  // Donut chart
+  const catCounts = {estudante:0,geral:0,autor:0,online:0};
+  state.inscricoes.forEach(i => catCounts[i.cat] = (catCounts[i.cat]||0)+1);
+  const total = state.inscricoes.length;
+  const catLabels = {estudante:'Estudante UniPiaget',geral:'Participante Geral',autor:'Comunicador',online:'Online'};
+  const catColors = {estudante:'#B22222',geral:'#D4751A',autor:'#4CAF7D',online:'#3A7ABD'};
+  let offset = 0;
+  const r = 38, cx = 55, cy = 55;
+  const circumference = 2 * Math.PI * r;
+  let paths = '';
+  let legendHtml = '';
+  Object.entries(catCounts).forEach(([k,v]) => {
+    if (!v) return;
+    const pct = v/total;
+    const dash = pct * circumference;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${catColors[k]}" stroke-width="12"
+      stroke-dasharray="${dash} ${circumference - dash}"
+      stroke-dashoffset="${-offset * circumference}"
+      transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += pct;
+    legendHtml += `<div class="legend-item">
+      <div class="legend-dot" style="background:${catColors[k]}"></div>
+      <div class="legend-name">${catLabels[k]}</div>
+      <div class="legend-pct">${v} (${Math.round(pct*100)}%)</div>
+    </div>`;
+  });
+  document.getElementById('donut-svg').innerHTML = paths;
+  document.getElementById('donut-legend').innerHTML = legendHtml;
+
+  // Recent table
+  const recent = [...state.inscricoes].sort((a,b) => b.id - a.id).slice(0,6);
+  document.getElementById('recent-table').innerHTML = renderInscricoesTable(recent, false);
+}
+
+// ════════════════════════════════════════════
+// INSCRIÇÕES
+// ════════════════════════════════════════════
+const catLabel = {estudante:'Estudante UniPiaget',geral:'Participante Geral',autor:'Comunicador',online:'Online'};
+const catBadge = {estudante:'badge-crimson',geral:'badge-muted',autor:'badge-amber',online:'badge-blue'};
+const statusBadge = {confirmado:'badge-green',pendente:'badge-amber',cancelado:'badge-crimson'};
+
+function renderInscricoesTable(list, withActions=true) {
+  let html = `<thead><tr>
+    <th>#</th><th>Nome</th><th>E-mail</th><th>Instituição</th>
+    <th>Categoria</th><th>Estado</th><th>Data</th>
+    ${withActions ? '<th>Ações</th>' : ''}
+  </tr></thead><tbody>`;
+  list.forEach(i => {
+    html += `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)">${i.id}</td>
+      <td style="font-weight:600">${i.nome} ${i.apelido}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.7rem">${i.email}</td>
+      <td>${i.inst}</td>
+      <td><span class="badge ${catBadge[i.cat]||'badge-muted'}">${catLabel[i.cat]||i.cat}</span></td>
+      <td><span class="badge ${statusBadge[i.status]||'badge-muted'}">${i.status}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)">${i.data}</td>
+      ${withActions ? `<td>
+        <button class="action-btn" onclick="editInscricao(${i.id})">Editar</button>
+        <button class="action-btn danger" onclick="deleteInscricao(${i.id})">Remover</button>
+      </td>` : ''}
+    </tr>`;
+  });
+  html += '</tbody>';
+  return html;
+}
+
+function renderInscricoes() {
+  document.getElementById('inscricoes-table').innerHTML = renderInscricoesTable(state.inscricoes);
+}
+
+function filterInscricoes() {
+  const q = document.getElementById('search-inscricoes').value.toLowerCase();
+  const cat = document.getElementById('filter-cat').value;
+  const status = document.getElementById('filter-status').value;
+  const filtered = state.inscricoes.filter(i => {
+    const text = `${i.nome} ${i.apelido} ${i.email} ${i.inst}`.toLowerCase();
+    return (!q || text.includes(q)) &&
+           (!cat || i.cat === cat) &&
+           (!status || i.status === status);
+  });
+  document.getElementById('inscricoes-table').innerHTML = renderInscricoesTable(filtered);
+}
+
+function saveInscricao() {
+  const nome = document.getElementById('ni-nome').value.trim();
+  const apelido = document.getElementById('ni-apelido').value.trim();
+  const email = document.getElementById('ni-email').value.trim();
+  if (!nome || !apelido || !email) { showToast('Preencha nome, apelido e e-mail.', 'warn'); return; }
+  const insc = {
+    id: state.nextId.inscricoes++,
+    nome, apelido, email,
+    tel: document.getElementById('ni-tel').value.trim(),
+    inst: document.getElementById('ni-inst').value.trim(),
+    cat: document.getElementById('ni-cat').value,
+    areas: [],
+    status: document.getElementById('ni-status').value,
+    data: new Date().toISOString().slice(0,10),
+    obs: document.getElementById('ni-obs').value.trim(),
+  };
+  state.inscricoes.push(insc);
+  renderInscricoes();
+  renderDashboard();
+  closeModal();
+  showToast(`Inscrição de ${nome} ${apelido} registada com sucesso.`);
+  addAuditLog('ok','Nova inscrição adicionada',`${nome} ${apelido} · por ${state.currentUser?.username}`);
+}
+
+function deleteInscricao(id) {
+  if (!confirm('Tem a certeza que pretende remover esta inscrição?')) return;
+  const insc = state.inscricoes.find(i => i.id === id);
+  state.inscricoes = state.inscricoes.filter(i => i.id !== id);
+  renderInscricoes();
+  renderDashboard();
+  showToast('Inscrição removida.', 'warn');
+  if (insc) addAuditLog('warn','Inscrição removida',`${insc.nome} ${insc.apelido} · por ${state.currentUser?.username}`);
+}
+
+function editInscricao(id) {
+  const i = state.inscricoes.find(x => x.id === id);
+  if (!i) return;
+  document.getElementById('ni-nome').value = i.nome;
+  document.getElementById('ni-apelido').value = i.apelido;
+  document.getElementById('ni-email').value = i.email;
+  document.getElementById('ni-tel').value = i.tel;
+  document.getElementById('ni-inst').value = i.inst;
+  document.getElementById('ni-cat').value = i.cat;
+  document.getElementById('ni-status').value = i.status;
+  document.getElementById('ni-obs').value = i.obs;
+  openModal('add-inscricao');
+}
+
+// ════════════════════════════════════════════
+// SESSÕES
+// ════════════════════════════════════════════
+function renderSessoes() {
+  let html = `<thead><tr><th>#</th><th>Título</th><th>Data</th><th>Hora</th><th>Sala</th><th>Moderador</th><th>Área</th><th>Estado</th><th>Ações</th></tr></thead><tbody>`;
+  state.sessoes.forEach(s => {
+    html += `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)">${s.id}</td>
+      <td style="font-weight:600">${s.titulo}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.7rem">${s.data}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.7rem">${s.hora}</td>
+      <td>${s.sala}</td>
+      <td>${s.mod}</td>
+      <td><span class="badge badge-amber" style="font-size:.5rem">${s.area}</span></td>
+      <td><span class="badge ${s.status==='confirmado'?'badge-green':'badge-amber'}">${s.status}</span></td>
+      <td><button class="action-btn danger" onclick="deleteSessao(${s.id})">Remover</button></td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('sessoes-table').innerHTML = html;
+}
+
+function saveSessao() {
+  const titulo = document.getElementById('ns-titulo').value.trim();
+  if (!titulo) { showToast('Introduza o título da sessão.', 'warn'); return; }
+  state.sessoes.push({
+    id: state.nextId.sessoes++,
+    titulo,
+    data: document.getElementById('ns-data').value,
+    hora: document.getElementById('ns-hora').value,
+    sala: document.getElementById('ns-sala').value.trim(),
+    mod: document.getElementById('ns-mod').value.trim(),
+    area: document.getElementById('ns-area').value,
+    status: 'confirmado'
+  });
+  renderSessoes();
+  closeModal();
+  showToast('Sessão adicionada ao programa.');
+}
+
+function deleteSessao(id) {
+  if (!confirm('Remover sessão?')) return;
+  state.sessoes = state.sessoes.filter(s => s.id !== id);
+  renderSessoes();
+  showToast('Sessão removida.', 'warn');
+}
+
+// ════════════════════════════════════════════
+// COMUNICAÇÕES
+// ════════════════════════════════════════════
+const comStatusBadge = {aprovado:'badge-green',pendente:'badge-amber',revisão:'badge-blue',rejeitado:'badge-crimson'};
+const comTipoBadge = {oral:'badge-crimson',poster:'badge-blue',workshop:'badge-amber'};
+
+function renderComunicacoes() {
+  document.getElementById('badge-com').textContent = state.comunicacoes.filter(c => c.status==='pendente').length;
+  let html = `<thead><tr><th>#</th><th>Título</th><th>Autor(es)</th><th>Instituição</th><th>Área</th><th>Tipo</th><th>Estado</th><th>Ações</th></tr></thead><tbody>`;
+  state.comunicacoes.forEach(c => {
+    html += `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)">${c.id}</td>
+      <td style="font-weight:600;max-width:200px">${c.titulo}</td>
+      <td>${c.autores}</td>
+      <td>${c.inst}</td>
+      <td style="font-size:.7rem">${c.area}</td>
+      <td><span class="badge ${comTipoBadge[c.tipo]||'badge-muted'}">${c.tipo}</span></td>
+      <td>
+        <select onchange="updateComStatus(${c.id},this.value)" style="background:transparent;border:none;color:inherit;font-size:.72rem;cursor:pointer;font-family:'Manrope',sans-serif">
+          ${['aprovado','pendente','revisão','rejeitado'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td><button class="action-btn danger" onclick="deleteCom(${c.id})">Remover</button></td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('comunicacoes-table').innerHTML = html;
+}
+
+function updateComStatus(id, status) {
+  const c = state.comunicacoes.find(x => x.id === id);
+  if (c) {
+    c.status = status;
+    renderComunicacoes();
+    showToast(`Comunicação "${c.titulo.slice(0,30)}…" → ${status}`);
+    addAuditLog('ok', `Comunicação ${status}`, `ID #${id} · ${c.autores}`);
+  }
+}
+
+function saveComunicacao() {
+  const titulo = document.getElementById('nc-titulo').value.trim();
+  if (!titulo) { showToast('Introduza o título da comunicação.', 'warn'); return; }
+  state.comunicacoes.push({
+    id: state.nextId.comunicacoes++,
+    titulo,
+    autores: document.getElementById('nc-autores').value.trim(),
+    inst: document.getElementById('nc-inst').value.trim(),
+    area: document.getElementById('nc-area').value,
+    tipo: document.getElementById('nc-tipo').value,
+    resumo: document.getElementById('nc-resumo').value.trim(),
+    status: 'pendente'
+  });
+  renderComunicacoes();
+  closeModal();
+  showToast('Comunicação submetida para revisão.');
+}
+
+function deleteCom(id) {
+  if (!confirm('Remover comunicação?')) return;
+  state.comunicacoes = state.comunicacoes.filter(c => c.id !== id);
+  renderComunicacoes();
+  showToast('Comunicação removida.', 'warn');
+}
+
+// ════════════════════════════════════════════
+// UTILIZADORES
+// ════════════════════════════════════════════
+const roleLabel = {superadmin:'Super Admin',admin:'Administrador',editor:'Editor',viewer:'Visualizador'};
+const roleBadge = {superadmin:'badge-crimson',admin:'badge-amber',editor:'badge-blue',viewer:'badge-muted'};
+
+function renderUsers() {
+  let html = `<thead><tr><th>#</th><th>Nome</th><th>E-mail</th><th>Nível de Acesso</th><th>Estado</th><th>Último Acesso</th><th>Ações</th></tr></thead><tbody>`;
+  state.adminUsers.forEach(u => {
+    html += `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted)">${u.id}</td>
+      <td style="font-weight:600">${u.nome}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.7rem">${u.email}</td>
+      <td><span class="badge ${roleBadge[u.role]||'badge-muted'}">${roleLabel[u.role]||u.role}</span></td>
+      <td><span class="badge ${u.status==='activo'?'badge-green':'badge-muted'}">${u.status}</span></td>
+      <td style="font-size:.7rem;color:var(--muted)">${u.lastLogin}</td>
+      <td>
+        <button class="action-btn" onclick="toggleUserStatus(${u.id})">${u.status==='activo'?'Desactivar':'Activar'}</button>
+        ${u.id !== 1 ? `<button class="action-btn danger" onclick="deleteUser(${u.id})">Remover</button>` : ''}
+      </td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('users-table').innerHTML = html;
+}
+
+function saveUser() {
+  const nome = document.getElementById('nu-nome').value.trim();
+  const apelido = document.getElementById('nu-apelido').value.trim();
+  const email = document.getElementById('nu-email').value.trim();
+  const pass = document.getElementById('nu-pass').value;
+  if (!nome || !email || pass.length < 8) { showToast('Preencha todos os campos. Senha mínimo 8 caracteres.', 'warn'); return; }
+  state.adminUsers.push({
+    id: state.nextId.users++,
+    nome: `${nome} ${apelido}`.trim(),
+    email,
+    role: document.getElementById('nu-role').value,
+    status: 'activo',
+    lastLogin: '—'
+  });
+  renderUsers();
+  closeModal();
+  showToast(`Conta criada para ${nome}.`);
+  addAuditLog('ok','Novo admin criado',`${email} · role ${document.getElementById('nu-role').value}`);
+}
+
+function toggleUserStatus(id) {
+  const u = state.adminUsers.find(x => x.id === id);
+  if (u) {
+    u.status = u.status === 'activo' ? 'inactivo' : 'activo';
+    renderUsers();
+    showToast(`Utilizador ${u.nome} → ${u.status}`);
+  }
+}
+
+function deleteUser(id) {
+  if (!confirm('Remover utilizador admin?')) return;
+  state.adminUsers = state.adminUsers.filter(u => u.id !== id);
+  renderUsers();
+  showToast('Utilizador removido.', 'warn');
+}
+
+// ════════════════════════════════════════════
+// SECURITY
+// ════════════════════════════════════════════
+function renderSecurity() {
+  // Policies
+  document.getElementById('policy-list').innerHTML = state.policies.map(p => `
+    <div class="policy-item">
+      <div>
+        <div class="policy-name">${p.name}</div>
+        <div class="policy-desc">${p.desc}</div>
+      </div>
+      <div class="toggle-wrap">
+        <button class="toggle ${p.on ? 'on' : ''}" onclick="togglePolicy('${p.key}')"></button>
+        <span class="toggle-label">${p.on ? 'Activo' : 'Inactivo'}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // Audit log
+  document.getElementById('audit-log').innerHTML = state.auditLog.map(l => `
+    <div class="log-row">
+      <div class="log-dot ${l.type}"></div>
+      <div class="log-info">
+        <div class="log-action">${l.action}</div>
+        <div class="log-detail">${l.detail}</div>
+      </div>
+      <div class="log-time">${l.time}</div>
+    </div>
+  `).join('');
+
+  // Sessions
+  document.getElementById('active-sessions').innerHTML = state.activeSessions.map(s => `
+    <div class="log-row">
+      <div class="log-dot ok"></div>
+      <div class="log-info">
+        <div class="log-action">${s.user} <span style="color:var(--muted);font-size:.68rem">(${s.role})</span></div>
+        <div class="log-detail">${s.agent} · IP ${s.ip}</div>
+      </div>
+      <div class="log-time">desde ${s.since}</div>
+    </div>
+  `).join('');
+}
+
+function togglePolicy(key) {
+  const p = state.policies.find(x => x.key === key);
+  if (p) {
+    p.on = !p.on;
+    renderSecurity();
+    showToast(`Política "${p.name}" ${p.on ? 'activada' : 'desactivada'}.`, p.on ? 'ok' : 'warn');
+    addAuditLog(p.on ? 'ok' : 'warn', `Política ${p.on?'activada':'desactivada'}`, `${p.name} · por ${state.currentUser?.username}`);
+  }
+}
+
+function addAuditLog(type, action, detail) {
+  const now = new Date();
+  const time = `${now.toLocaleTimeString('pt-PT', {hour:'2-digit',minute:'2-digit'})}`;
+  state.auditLog.unshift({type, action, detail, time: `Hoje ${time}`});
+  if (state.auditLog.length > 20) state.auditLog.pop();
+}
+
+// ════════════════════════════════════════════
+// REPORT GENERATION
+// ════════════════════════════════════════════
+function generateReport() {
+  const incResumo = document.getElementById('rpt-resumo').checked;
+  const incInscricoes = document.getElementById('rpt-inscricoes').checked;
+  const incCat = document.getElementById('rpt-categorias').checked;
+  const incAreas = document.getElementById('rpt-areas').checked;
+  const incCom = document.getElementById('rpt-comunicacoes').checked;
+  const incSessoes = document.getElementById('rpt-sessoes').checked;
+  const incSeg = document.getElementById('rpt-seguranca').checked;
+  const tipo = document.getElementById('rpt-tipo').value;
+  const data = document.getElementById('rpt-data').value;
+  const gerado = new Date().toLocaleString('pt-PT');
+
+  const catCounts = {estudante:0,geral:0,autor:0,online:0};
+  state.inscricoes.forEach(i => catCounts[i.cat]++);
+  const areaCounts = {};
+  const areaLabels = {saude:'Saúde',eng:'Engenharias',edu:'Educação',dir:'Direito',eco:'Economia',ia:'Informática/IA'};
+  state.inscricoes.forEach(i => i.areas.forEach(a => areaCounts[a] = (areaCounts[a]||0)+1));
+  const confirmados = state.inscricoes.filter(i => i.status==='confirmado').length;
+  const pendentes = state.inscricoes.filter(i => i.status==='pendente').length;
+  const aprovadas = state.comunicacoes.filter(c => c.status==='aprovado').length;
+
+  let html = `
+    <div class="report-doc-header">
+      <h1>2ªs Jornadas Técnico-Científicas — UniPiaget Angola</h1>
+      <p>Relatório ${tipo.charAt(0).toUpperCase()+tipo.slice(1)} · Gerado em ${gerado} · Data de corte: ${data}</p>
+    </div>
+  `;
+
+  if (incResumo) html += `
+    <div class="report-section">
+      <h2>Resumo Executivo</h2>
+      <div class="report-kpi-row">
+        <div class="report-kpi"><div class="report-kpi-label">Total Inscrições</div><div class="report-kpi-value">${state.inscricoes.length}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Confirmados</div><div class="report-kpi-value">${confirmados}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Pendentes</div><div class="report-kpi-value">${pendentes}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Comunicações</div><div class="report-kpi-value">${state.comunicacoes.length}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Aprovadas</div><div class="report-kpi-value">${aprovadas}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Sessões</div><div class="report-kpi-value">${state.sessoes.length}</div></div>
+      </div>
+      <p style="color:var(--ivory-dim);font-size:.8rem;line-height:1.7">
+        As 2ªs Jornadas Técnico-Científicas da Universidade Jean Piaget de Angola contam com ${state.inscricoes.length} participantes inscritos,
+        representando ${[...new Set(state.inscricoes.map(i=>i.inst))].length} instituições distintas.
+        A taxa de confirmação situase em ${Math.round(confirmados/state.inscricoes.length*100)}%.
+        Foram submetidas ${state.comunicacoes.length} comunicações científicas, das quais ${aprovadas} (${Math.round(aprovadas/state.comunicacoes.length*100)}%) foram aprovadas para apresentação.
+      </p>
+    </div>
+  `;
+
+  if (incCat) html += `
+    <div class="report-section">
+      <h2>Distribuição por Categoria</h2>
+      <div class="report-kpi-row">
+        <div class="report-kpi"><div class="report-kpi-label">Estudantes UniPiaget</div><div class="report-kpi-value">${catCounts.estudante}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Participantes Gerais</div><div class="report-kpi-value">${catCounts.geral}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Comunicadores</div><div class="report-kpi-value">${catCounts.autor}</div></div>
+        <div class="report-kpi"><div class="report-kpi-label">Online</div><div class="report-kpi-value">${catCounts.online}</div></div>
+      </div>
+    </div>
+  `;
+
+  if (incAreas) html += `
+    <div class="report-section">
+      <h2>Inscrições por Área Temática</h2>
+      <div class="bar-chart" style="max-width:400px">
+        ${Object.entries(areaCounts).sort((a,b)=>b[1]-a[1]).map(([k,v]) => {
+          const max = Math.max(...Object.values(areaCounts));
+          return `<div class="bar-row"><div class="bar-label">${areaLabels[k]||k}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${(v/max)*100}%"></div></div>
+            <div class="bar-count">${v}</div></div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  if (incInscricoes) html += `
+    <div class="report-section">
+      <h2>Listagem de Inscrições</h2>
+      <div style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.72rem">
+          <thead><tr style="background:rgba(139,26,26,0.15)">
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">#</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Nome</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">E-mail</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Instituição</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Categoria</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Estado</th>
+          </tr></thead>
+          <tbody>
+            ${state.inscricoes.map(i => `<tr style="border-bottom:1px solid rgba(139,26,26,0.1)">
+              <td style="padding:.45rem .7rem;color:var(--muted)">${i.id}</td>
+              <td style="padding:.45rem .7rem;font-weight:600">${i.nome} ${i.apelido}</td>
+              <td style="padding:.45rem .7rem;color:var(--ivory-dim)">${i.email}</td>
+              <td style="padding:.45rem .7rem;color:var(--ivory-dim)">${i.inst}</td>
+              <td style="padding:.45rem .7rem">${catLabel[i.cat]||i.cat}</td>
+              <td style="padding:.45rem .7rem">${i.status}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  if (incCom) html += `
+    <div class="report-section">
+      <h2>Comunicações Científicas</h2>
+      <div style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.72rem">
+          <thead><tr style="background:rgba(139,26,26,0.15)">
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Título</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Autor</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Área</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Tipo</th>
+            <th style="padding:.5rem .7rem;text-align:left;color:var(--muted);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase">Estado</th>
+          </tr></thead>
+          <tbody>
+            ${state.comunicacoes.map(c => `<tr style="border-bottom:1px solid rgba(139,26,26,0.1)">
+              <td style="padding:.45rem .7rem;font-weight:600;max-width:200px">${c.titulo}</td>
+              <td style="padding:.45rem .7rem">${c.autores}</td>
+              <td style="padding:.45rem .7rem;color:var(--ivory-dim)">${c.area}</td>
+              <td style="padding:.45rem .7rem">${c.tipo}</td>
+              <td style="padding:.45rem .7rem">${c.status}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  if (incSessoes) html += `
+    <div class="report-section">
+      <h2>Programa das Sessões</h2>
+      ${state.sessoes.map(s => `
+        <div style="padding:.7rem 1rem;border-left:3px solid var(--crimson);margin-bottom:.7rem;background:rgba(255,255,255,0.03)">
+          <div style="font-weight:700">${s.titulo}</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">${s.data} · ${s.hora} · ${s.sala} · Mod: ${s.mod}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  if (incSeg) html += `
+    <div class="report-section">
+      <h2>Log de Segurança (Últimas Entradas)</h2>
+      ${state.auditLog.slice(0,8).map(l => `
+        <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid rgba(139,26,26,0.08)">
+          <div style="width:7px;height:7px;border-radius:50%;background:${l.type==='ok'?'#4CAF7D':l.type==='warn'?'#D4751A':'#E85555'};margin-top:.35rem;flex-shrink:0"></div>
+          <div style="flex:1;font-size:.72rem"><span style="font-weight:600">${l.action}</span><br><span style="color:var(--muted)">${l.detail}</span></div>
+          <div style="font-size:.62rem;color:rgba(154,122,106,0.5);white-space:nowrap">${l.time}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  html += `
+    <div style="border-top:1px solid var(--border-c);padding-top:1rem;margin-top:1.5rem;text-align:center;color:rgba(154,122,106,0.5);font-size:.65rem;font-family:'DM Mono',monospace">
+      Universidade Jean Piaget de Angola · Sistema Administrativo das 2ªs Jornadas Técnico-Científicas · ${gerado}
+    </div>
+  `;
+
+  document.getElementById('preview-placeholder').style.display = 'none';
+  const rc = document.getElementById('report-content');
+  rc.classList.add('show');
+  rc.innerHTML = html;
+  showToast('Relatório gerado. Clique em "Exportar PDF" para descarregar.');
+  addAuditLog('ok','Relatório gerado',`Tipo: ${tipo} · por ${state.currentUser?.username}`);
+}
+
+// ════════════════════════════════════════════
+// PDF EXPORT
+// ════════════════════════════════════════════
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  if (!jsPDF) { showToast('Biblioteca PDF não carregada.', 'error'); return; }
+
+  const rc = document.getElementById('report-content');
+  if (!rc.classList.contains('show')) {
+    generateReport();
+    setTimeout(() => exportPDF(), 500);
+    return;
+  }
+
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 18;
+  let y = margin;
+
+  // Header bar
+  doc.setFillColor(139, 26, 26);
+  doc.rect(0, 0, pageW, 22, 'F');
+  doc.setTextColor(250, 246, 239);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('UniPiaget Angola — 2ªs Jornadas Técnico-Científicas', margin, 14);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(245, 200, 130);
+  doc.text(`Relatório Administrativo · Gerado em ${new Date().toLocaleString('pt-PT')}`, margin, 19.5);
+  y = 32;
+
+  // Title
+  doc.setTextColor(250, 246, 239);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Relatório das Jornadas', margin, y);
+  y += 8;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(154, 122, 106);
+  doc.text(`Data de corte: ${document.getElementById('rpt-data').value}  ·  Tipo: ${document.getElementById('rpt-tipo').value}`, margin, y);
+  y += 10;
+
+  // Divider
+  doc.setDrawColor(139, 26, 26);
+  doc.setLineWidth(0.5);
+  doc.line(margin, y, pageW - margin, y);
+  y += 8;
+
+  const addSection = (title) => {
+    if (y > pageH - 30) { doc.addPage(); addHeader(); y = 35; }
+    doc.setFillColor(139, 26, 26, 0.1);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(212, 117, 26);
+    doc.text(title.toUpperCase(), margin, y);
+    y += 2;
+    doc.setDrawColor(212, 117, 26);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, margin + 60, y);
+    y += 6;
+    doc.setTextColor(234, 229, 218);
+  };
+
+  const addHeader = () => {
+    doc.setFillColor(139, 26, 26);
+    doc.rect(0, 0, pageW, 10, 'F');
+    doc.setTextColor(250, 246, 239);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.text('UniPiaget Angola · 2ªs Jornadas Técnico-Científicas', margin, 7);
+    doc.text(`Pág. ${doc.internal.getNumberOfPages()}`, pageW - margin, 7, { align: 'right' });
+  };
+
+  // KPI boxes
+  if (document.getElementById('rpt-resumo').checked) {
+    addSection('Resumo Executivo');
+    const kpis = [
+      ['Total Inscrições', state.inscricoes.length],
+      ['Confirmados', state.inscricoes.filter(i=>i.status==='confirmado').length],
+      ['Pendentes', state.inscricoes.filter(i=>i.status==='pendente').length],
+      ['Comunicações', state.comunicacoes.length],
+      ['Aprovadas', state.comunicacoes.filter(c=>c.status==='aprovado').length],
+      ['Sessões', state.sessoes.length],
+    ];
+    const boxW = (pageW - 2*margin - 5*3) / 3;
+    kpis.forEach((k, idx) => {
+      const col = idx % 3;
+      const row = Math.floor(idx / 3);
+      const bx = margin + col*(boxW+3);
+      const by = y + row*18;
+      doc.setFillColor(30, 14, 14);
+      doc.rect(bx, by, boxW, 15, 'F');
+      doc.setDrawColor(139, 26, 26);
+      doc.setLineWidth(0.3);
+      doc.rect(bx, by, boxW, 15, 'S');
+      doc.setFontSize(7);
+      doc.setTextColor(154, 122, 106);
+      doc.setFont('helvetica', 'normal');
+      doc.text(k[0].toUpperCase(), bx+3, by+5.5);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(232, 146, 42);
+      doc.text(String(k[1]), bx+3, by+13);
+    });
+    y += 42;
+  }
+
+  // Categories
+  if (document.getElementById('rpt-categorias').checked) {
+    addSection('Distribuição por Categoria');
+    const catCounts = {estudante:0,geral:0,autor:0,online:0};
+    state.inscricoes.forEach(i => catCounts[i.cat]++);
+    const catLabels2 = {estudante:'Estudante UniPiaget',geral:'Participante Geral',autor:'Comunicador / Autor',online:'Participante Online'};
+    doc.autoTable({
+      startY: y,
+      head: [['Categoria','Quantidade','%']],
+      body: Object.entries(catCounts).map(([k,v]) => [
+        catLabels2[k]||k, v, `${Math.round(v/state.inscricoes.length*100)}%`
+      ]),
+      styles: { fontSize: 8, cellPadding: 3, textColor: [234,229,218], fillColor: [28,14,14] },
+      headStyles: { fillColor: [139,26,26], textColor: [250,246,239], fontStyle: 'bold', fontSize: 7 },
+      alternateRowStyles: { fillColor: [34,18,18] },
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+
+  // Inscricoes table
+  if (document.getElementById('rpt-inscricoes').checked) {
+    if (y > pageH - 40) { doc.addPage(); addHeader(); y = 35; }
+    addSection('Listagem de Inscrições');
+    doc.autoTable({
+      startY: y,
+      head: [['#','Nome','E-mail','Instituição','Categoria','Estado']],
+      body: state.inscricoes.map(i => [
+        i.id, `${i.nome} ${i.apelido}`, i.email, i.inst,
+        catLabel[i.cat]||i.cat, i.status
+      ]),
+      styles: { fontSize: 7, cellPadding: 2.5, textColor: [234,229,218], fillColor: [28,14,14], overflow:'ellipsize' },
+      headStyles: { fillColor: [139,26,26], textColor: [250,246,239], fontStyle: 'bold', fontSize: 6.5 },
+      alternateRowStyles: { fillColor: [34,18,18] },
+      columnStyles: { 2: { cellWidth: 42 } },
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+
+  // Comunicacoes
+  if (document.getElementById('rpt-comunicacoes').checked) {
+    if (y > pageH - 40) { doc.addPage(); addHeader(); y = 35; }
+    addSection('Comunicações Científicas');
+    doc.autoTable({
+      startY: y,
+      head: [['Título','Autor(es)','Área','Tipo','Estado']],
+      body: state.comunicacoes.map(c => [c.titulo, c.autores, c.area, c.tipo, c.status]),
+      styles: { fontSize: 7, cellPadding: 2.5, textColor: [234,229,218], fillColor: [28,14,14], overflow:'ellipsize' },
+      headStyles: { fillColor: [139,26,26], textColor: [250,246,239], fontStyle: 'bold', fontSize: 6.5 },
+      alternateRowStyles: { fillColor: [34,18,18] },
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+
+  // Sessoes
+  if (document.getElementById('rpt-sessoes').checked) {
+    if (y > pageH - 40) { doc.addPage(); addHeader(); y = 35; }
+    addSection('Programa das Sessões');
+    doc.autoTable({
+      startY: y,
+      head: [['Título','Data','Hora','Sala','Moderador','Área']],
+      body: state.sessoes.map(s => [s.titulo, s.data, s.hora, s.sala, s.mod, s.area]),
+      styles: { fontSize: 7, cellPadding: 2.5, textColor: [234,229,218], fillColor: [28,14,14], overflow:'ellipsize' },
+      headStyles: { fillColor: [139,26,26], textColor: [250,246,239], fontStyle: 'bold', fontSize: 6.5 },
+      alternateRowStyles: { fillColor: [34,18,18] },
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
+
+  // Footer on every page
+  const pages = doc.internal.getNumberOfPages();
+  for (let p = 2; p <= pages; p++) {
+    doc.setPage(p);
+    addHeader();
+  }
+
+  // Footer last
+  doc.setPage(pages);
+  const fy = pageH - 10;
+  doc.setFillColor(139, 26, 26);
+  doc.rect(0, fy - 4, pageW, 14, 'F');
+  doc.setTextColor(154, 122, 106);
+  doc.setFontSize(7);
+  doc.text('Universidade Jean Piaget de Angola · Sistema Administrativo das 2ªs Jornadas Técnico-Científicas', margin, fy + 2);
+  doc.text(`${new Date().toLocaleString('pt-PT')}`, pageW - margin, fy + 2, {align:'right'});
+
+  doc.save(`UniPiaget_Jornadas_Relatorio_${new Date().toISOString().slice(0,10)}.pdf`);
+  showToast('PDF exportado com sucesso!');
+  addAuditLog('ok','PDF exportado',`Relatório completo · ${state.inscricoes.length} inscrições · por ${state.currentUser?.username}`);
+}
+
+// ════════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════════
+let activeModal = null;
+
+function openModal(name) {
+  document.querySelectorAll('.modal-box').forEach(b => b.style.display='none');
+  const box = document.getElementById('modal-' + name);
+  if (box) { box.style.display='block'; document.getElementById('modal-overlay').classList.add('open'); activeModal = name; }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.querySelectorAll('.modal-box').forEach(b => b.style.display='none');
+  activeModal = null;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ════════════════════════════════════════════
+// TOASTS
+// ════════════════════════════════════════════
+function showToast(msg, type='ok') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type === 'ok' ? '' : type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(()=>t.remove(),400); }, 3500);
+}
+
+// ════════════════════════════════════════════
+// ENTER KEY ON LOGIN
+// ════════════════════════════════════════════
+document.getElementById('login-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-pass').focus(); });
+
+// ════════════════════════════════════════════
+// BURGER MENU (MOBILE SIDEBAR)
+// ════════════════════════════════════════════
+function openSidebar() {
+  document.querySelector('.sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.getElementById('burger-btn').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.getElementById('burger-btn').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); });
+});
+window.addEventListener('resize', () => { if (window.innerWidth > 768) closeSidebar(); });
+</script>
+</body>
+</html>
